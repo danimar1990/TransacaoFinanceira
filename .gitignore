@@ -1,0 +1,23 @@
+﻿# Arquivos do Visual Studio
+.vscode/
+.vs/
+*.csproj.user
+*.suo
+
+# Diretórios de build
+bin/
+obj/
+Debug/
+Release/
+
+# Arquivos do NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+
+# Outras configurações temporárias
+*.tmp
+*.log
+*.pdb
+*.cache
