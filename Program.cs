@@ -8,7 +8,6 @@ namespace TransacaoFinanceira
     {
         static void Main(string[] args)
         {
-            // Alteração efetuada: Os parâmetros 'conta_origem' e 'conta_destino' devem ser do tipo 'long', então acresccentamos 'L' ao final do número
             var TRANSACOES = new[]
             {
                 new { correlation_id = 1, datetime = "09/09/2023 14:15:00", conta_origem = 938485762L, conta_destino = 2147483649L, VALOR = 150 },
@@ -31,36 +30,36 @@ namespace TransacaoFinanceira
 
     class executarTransacaoFinanceira : acessoDados
     {
-        // Alteração efetuada: Trocamos 'int' por 'long' nos parâmetros 'conta_origem' e 'conta_destino'.
         public void transferir(int correlation_id, long conta_origem, long conta_destino, decimal valor)
         {
-            // Observação: A chamada do método 'getSaldo' já está sendo feita com 'long' em vez de 'int' para a conta de origem.
-            contas_saldo conta_saldo_origem = getSaldo<contas_saldo>(conta_origem);
-            if (conta_saldo_origem.saldo < valor)
+            // Atualização efetuada: A utilização de locks garante que as operações nas contas sejam thread-safe, ou seja, que não haja múltiplos acessos concorrentes às mesmas contas enquanto uma transação está sendo processada.
+            lock (this)
             {
-                Console.WriteLine("Transacao numero {0} foi cancelada por falta de saldo", correlation_id);
-            }
-            else
-            {
-                // Observação: A chamada do método 'getSaldo' já está sendo feita com 'long' em vez de 'int' para a conta de destino.
-                contas_saldo conta_saldo_destino = getSaldo<contas_saldo>(conta_destino);
-                conta_saldo_origem.saldo -= valor;
-                conta_saldo_destino.saldo += valor;
-                Console.WriteLine("Transacao numero {0} foi efetivada com sucesso! Novos saldos: Conta Origem: {1} | Conta Destino: {2}", correlation_id, conta_saldo_origem.saldo, conta_saldo_destino.saldo);
+                contas_saldo conta_saldo_origem = getSaldo<contas_saldo>(conta_origem);
+                if (conta_saldo_origem.saldo < valor)
+                {
+                    Console.WriteLine("Transacao numero {0} foi cancelada por falta de saldo", correlation_id);
+                }
+                else
+                {
+                    contas_saldo conta_saldo_destino = getSaldo<contas_saldo>(conta_destino);
+                    conta_saldo_origem.saldo -= valor;
+                    conta_saldo_destino.saldo += valor;
+                    Console.WriteLine("Transacao numero {0} foi efetivada com sucesso! Novos saldos: Conta Origem: {1} | Conta Destino: {2}",
+                        correlation_id, conta_saldo_origem.saldo, conta_saldo_destino.saldo);
+                }
             }
         }
     }
 
     class contas_saldo
     {
-        // Alteração efetuada: Alteramos o parâmetro 'conta' no tipo da conta para utilizar 'long'.
         public contas_saldo(long conta, decimal valor)
         {
             this.conta = conta;
             this.saldo = valor;
         }
 
-        // Alteração efetuada: Aqui também alteramos para utilizar 'long'.
         public long conta { get; set; }
         public decimal saldo { get; set; }
     }
@@ -71,20 +70,21 @@ namespace TransacaoFinanceira
 
         public acessoDados()
         {
-            TABELA_SALDOS = new List<contas_saldo>();
-            // Alteração efetuada: Assim como em 'TRANSACOES', adicionamos 'L' ao final do número da conta para utilizar 'long' ao invés de 'int'.
-            TABELA_SALDOS.Add(new contas_saldo(938485762L, 180));
-            TABELA_SALDOS.Add(new contas_saldo(347586970L, 1200));
-            TABELA_SALDOS.Add(new contas_saldo(2147483649L, 0));
-            TABELA_SALDOS.Add(new contas_saldo(675869708L, 4900));
-            TABELA_SALDOS.Add(new contas_saldo(238596054L, 478));
-            TABELA_SALDOS.Add(new contas_saldo(573659065L, 787));
-            TABELA_SALDOS.Add(new contas_saldo(210385733L, 10));
-            TABELA_SALDOS.Add(new contas_saldo(674038564L, 400));
-            TABELA_SALDOS.Add(new contas_saldo(563856300L, 1200));
+            // Alteração efetuada: adicionando objetos diretamente quando a lista é criada, reduzindo a quantidade de código redundante
+            TABELA_SALDOS = new List<contas_saldo>
+            {
+                new contas_saldo(938485762L, 180),
+                new contas_saldo(347586970L, 1200),
+                new contas_saldo(2147483649L, 0),
+                new contas_saldo(675869708L, 4900),
+                new contas_saldo(238596054L, 478),
+                new contas_saldo(573659065L, 787),
+                new contas_saldo(210385733L, 10),
+                new contas_saldo(674038564L, 400),
+                new contas_saldo(563856300L, 1200)
+            };
         }
 
-        // Alteração efetuada: Alteramos o parâmetro para utilizar 'long' e não mais 'int'.
         public T getSaldo<T>(long id)
         {
             return (T)Convert.ChangeType(TABELA_SALDOS.Find(x => x.conta == id), typeof(T));
