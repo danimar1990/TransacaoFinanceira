@@ -71,17 +71,19 @@ namespace TransacaoFinanceira
 
         public acessoDados()
         {
-            TABELA_SALDOS = new List<contas_saldo>();
-            // Alteração efetuada: Assim como em 'TRANSACOES', adicionamos 'L' ao final do número da conta para utilizar 'long' ao invés de 'int'.
-            TABELA_SALDOS.Add(new contas_saldo(938485762L, 180));
-            TABELA_SALDOS.Add(new contas_saldo(347586970L, 1200));
-            TABELA_SALDOS.Add(new contas_saldo(2147483649L, 0));
-            TABELA_SALDOS.Add(new contas_saldo(675869708L, 4900));
-            TABELA_SALDOS.Add(new contas_saldo(238596054L, 478));
-            TABELA_SALDOS.Add(new contas_saldo(573659065L, 787));
-            TABELA_SALDOS.Add(new contas_saldo(210385733L, 10));
-            TABELA_SALDOS.Add(new contas_saldo(674038564L, 400));
-            TABELA_SALDOS.Add(new contas_saldo(563856300L, 1200));
+            // Alteração efetuada: adicionando objetos diretamente quando a lista é criada, reduzindo a quantidade de código redundante
+            TABELA_SALDOS = new List<contas_saldo>
+            {
+                new contas_saldo(938485762L, 180),
+                new contas_saldo(347586970L, 1200),
+                new contas_saldo(2147483649L, 0),
+                new contas_saldo(675869708L, 4900),
+                new contas_saldo(238596054L, 478),
+                new contas_saldo(573659065L, 787),
+                new contas_saldo(210385733L, 10),
+                new contas_saldo(674038564L, 400),
+                new contas_saldo(563856300L, 1200)
+            };
         }
 
         // Alteração efetuada: Alteramos o parâmetro para utilizar 'long' e não mais 'int'.
